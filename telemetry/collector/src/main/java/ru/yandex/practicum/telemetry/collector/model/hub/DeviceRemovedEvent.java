@@ -5,6 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Событие удаления зарегистрированного устройства из хаба.
+ *
+ * <p>Содержит идентификатор устройства, которое больше не должно
+ * считаться подключённым к данному хабу.</p>
+ */
 @Getter
 @Setter
 @NoArgsConstructor

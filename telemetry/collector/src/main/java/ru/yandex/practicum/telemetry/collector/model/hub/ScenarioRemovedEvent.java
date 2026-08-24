@@ -5,6 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Событие удаления сценария умного дома.
+ *
+ * <p>Содержит название сценария, который должен быть удалён
+ * из конфигурации соответствующего хаба.</p>
+ */
 @Getter
 @Setter
 @NoArgsConstructor

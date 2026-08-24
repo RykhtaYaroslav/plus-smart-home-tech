@@ -5,6 +5,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Событие регистрации нового устройства в хабе.
+ *
+ * <p>Содержит идентификатор добавляемого устройства и его тип.
+ * Используется при получении от Hub Router информации
+ * о подключении нового устройства к системе умного дома.</p>
+ */
 @Getter
 @Setter
 @NoArgsConstructor
