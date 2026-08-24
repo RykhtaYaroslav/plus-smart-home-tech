@@ -5,17 +5,18 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
-        visible = true
+        property = "type"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = LightSensorEvent.class, name = "LIGHT_SENSOR_EVENT"),
@@ -27,7 +28,7 @@ import java.time.Instant;
 public abstract class SensorEvent {
     private String id;
     private String hubId;
-    private Instant timestamp;
+    private Instant timestamp = Instant.now();
 
     public abstract SensorEventType getType();
 }

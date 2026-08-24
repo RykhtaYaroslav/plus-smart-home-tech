@@ -1,6 +1,5 @@
 package ru.yandex.practicum.telemetry.collector.model.sensor;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,7 +8,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString(callSuper = true)
 public class ClimateSensorEvent extends SensorEvent {
     private int temperatureC;
@@ -18,6 +16,6 @@ public class ClimateSensorEvent extends SensorEvent {
 
     @Override
     public SensorEventType getType() {
-        return null;
+        return SensorEventType.CLIMATE_SENSOR_EVENT;
     }
 }
