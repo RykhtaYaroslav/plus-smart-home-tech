@@ -17,7 +17,7 @@ import ru.yandex.practicum.telemetry.collector.model.sensor.TemperatureSensorEve
 import java.util.Objects;
 
 @Component
-public class SensorEventAvroMapperImpl implements SensorEventAvroMapper{
+public class SensorEventMapperImpl implements SensorEventMapper {
 
     @Override
     public SensorEventAvro map(SensorEvent event) {

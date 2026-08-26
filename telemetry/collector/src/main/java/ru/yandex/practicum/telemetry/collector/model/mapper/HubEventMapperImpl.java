@@ -5,7 +5,7 @@ import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.telemetry.collector.model.hub.*;
 
 @Component
-public class HubEventAvroMapperImpl implements HubEventAvroMapper {
+public class HubEventMapperImpl implements HubEventMapper {
 
     @Override
     public HubEventAvro map(HubEvent event) {
