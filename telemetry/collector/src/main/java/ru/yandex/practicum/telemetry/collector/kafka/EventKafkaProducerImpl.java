@@ -13,10 +13,10 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 @RequiredArgsConstructor
 public class EventKafkaProducerImpl implements EventKafkaProducer{
     @Value("${collector.kafka.sensor-topic}")
-    private final String sensorTopic;
+    private String sensorTopic;
 
     @Value("${collector.kafka.hub-topic}")
-    private final String hubTopic;
+    private String hubTopic;
 
     private final KafkaProducer<String, SpecificRecordBase> producer;
 
