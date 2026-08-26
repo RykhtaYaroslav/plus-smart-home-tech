@@ -11,7 +11,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 @Component
 @RequiredArgsConstructor
-public class EventKafkaProducerImpl implements EventKafkaProducer{
+public class EventKafkaProducerImpl implements EventKafkaProducer {
     @Value("${collector.kafka.sensor-topic}")
     private String sensorTopic;
 

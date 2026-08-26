@@ -42,7 +42,7 @@ public class SensorEventMapperImpl implements SensorEventMapper {
         };
     }
 
-    private LightSensorAvro map (LightSensorEvent light) {
+    private LightSensorAvro map(LightSensorEvent light) {
         return LightSensorAvro.newBuilder()
                 .setLinkQuality(light.getLinkQuality())
                 .setLuminosity(light.getLuminosity())
