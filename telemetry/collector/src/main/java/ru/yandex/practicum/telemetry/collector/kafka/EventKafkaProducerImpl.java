@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
+import java.time.Duration;
+
 @Component
 @RequiredArgsConstructor
-public class EventKafkaProducerImpl implements EventKafkaProducer {
+public class EventKafkaProducerImpl implements EventKafkaProducer, AutoCloseable {
     @Value("${collector.kafka.sensor-topic}")
     private String sensorTopic;
 
@@ -30,6 +32,7 @@ public class EventKafkaProducerImpl implements EventKafkaProducer {
                 );
 
         producer.send(producerRecord);
+        producer.flush();
     }
 
     @Override
@@ -42,5 +45,12 @@ public class EventKafkaProducerImpl implements EventKafkaProducer {
                 );
 
         producer.send(producerRecord);
+        producer.flush();
+    }
+
+    @Override
+    public void close() {
+        producer.flush();
+        producer.close(Duration.ofSeconds(10));
     }
 }
