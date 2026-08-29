@@ -1,46 +1,46 @@
-package ru.yandex.practicum.telemetry.collector.model.mapper;
+package ru.yandex.practicum.telemetry.collector.model.mapper.hub;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceRemovedEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
-import ru.yandex.practicum.grpc.telemetry.event.ScenarioRemovedEventProto;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
+import ru.yandex.practicum.telemetry.collector.model.hub.DeviceRemovedEvent;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEventType;
-import ru.yandex.practicum.telemetry.collector.model.hub.ScenarioRemovedEvent;
 
 import java.time.Instant;
 
 @Component
-public class ScenarioRemovedEventMapper implements HubEventMapper {
+public class DeviceRemovedEventMapper implements HubEventMapper {
     @Override
     public HubEventType getMessageType() {
-        return HubEventType.SCENARIO_REMOVED;
+        return HubEventType.DEVICE_REMOVED;
     }
 
     @Override
     public HubEventAvro mapToAvro(HubEvent event) {
-        ScenarioRemovedEvent removed = (ScenarioRemovedEvent) event;
+        DeviceRemovedEvent removed = (DeviceRemovedEvent) event;
 
         return HubEventAvro.newBuilder()
                 .setHubId(removed.getHubId())
                 .setTimestamp(removed.getTimestamp())
-                .setPayload(ScenarioRemovedEventAvro.newBuilder()
-                        .setName(removed.getName())
+                .setPayload(DeviceRemovedEventAvro.newBuilder()
+                        .setId(removed.getId())
                         .build())
                 .build();
     }
 
     @Override
-    public ScenarioRemovedEvent mapToModel(HubEventProto event) {
-        ScenarioRemovedEventProto payload = event.getScenarioRemoved();
-        ScenarioRemovedEvent removed = new ScenarioRemovedEvent();
+    public DeviceRemovedEvent mapToModel(HubEventProto event) {
+        DeviceRemovedEventProto payload = event.getDeviceRemoved();
+        DeviceRemovedEvent removed = new DeviceRemovedEvent();
         removed.setHubId(event.getHubId());
         removed.setTimestamp(Instant.ofEpochSecond(
                 event.getTimestamp().getSeconds(),
                 event.getTimestamp().getNanos()
         ));
-        removed.setName(payload.getName());
+        removed.setId(payload.getId());
         return removed;
     }
 }
