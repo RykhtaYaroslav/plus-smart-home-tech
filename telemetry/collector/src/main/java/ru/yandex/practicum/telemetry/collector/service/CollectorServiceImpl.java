@@ -5,6 +5,7 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.collector.kafka.EventKafkaProducerImpl;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
+import ru.yandex.practicum.telemetry.collector.model.hub.HubEventType;
 import ru.yandex.practicum.telemetry.collector.model.mapper.HubEventMapper;
 import ru.yandex.practicum.telemetry.collector.model.mapper.sensor.SensorEventMapper;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
@@ -17,14 +18,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class CollectorServiceImpl implements CollectorService {
-    private final HubEventMapper hubMapper;
+    private final Map<HubEventType, HubEventMapper> hubEventMapperMap;
     private final Map<SensorEventType, SensorEventMapper> sensorEventMapperMap;
     private final EventKafkaProducerImpl kafka;
 
-    public CollectorServiceImpl(HubEventMapper hubMapper,
+    public CollectorServiceImpl(List<HubEventMapper> hubEventMappers,
                                 List<SensorEventMapper> sensorEventMappers,
                                 EventKafkaProducerImpl kafka) {
-        this.hubMapper = hubMapper;
+        this.hubEventMapperMap = hubEventMappers.stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        HubEventMapper::getMessageType,
+                        Function.identity()
+                ));
         this.sensorEventMapperMap = sensorEventMappers.stream()
                 .collect(Collectors.toUnmodifiableMap(
                         SensorEventMapper::getMessageType,
@@ -47,7 +52,13 @@ public class CollectorServiceImpl implements CollectorService {
 
     @Override
     public void collect(HubEvent event) {
-        HubEventAvro avro = hubMapper.map(event);
+        HubEventMapper mapper = hubEventMapperMap.get(event.getType());
+
+        if (mapper == null) {
+            throw new IllegalStateException("Hub event mapper not found for type: " + event.getType());
+        }
+
+        HubEventAvro avro = mapper.mapToAvro(event);
         kafka.send(avro);
     }
 }
