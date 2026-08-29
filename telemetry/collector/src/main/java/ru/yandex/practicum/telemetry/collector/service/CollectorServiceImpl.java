@@ -6,7 +6,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.collector.kafka.EventKafkaProducerImpl;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.mapper.HubEventMapper;
-import ru.yandex.practicum.telemetry.collector.model.mapper.SensorEventMapper;
+import ru.yandex.practicum.telemetry.collector.model.mapper.sensor.SensorEventMapper;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEventType;
 
