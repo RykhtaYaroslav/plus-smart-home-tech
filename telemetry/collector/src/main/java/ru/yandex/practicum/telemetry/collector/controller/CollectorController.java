@@ -1,27 +1,42 @@
 package ru.yandex.practicum.telemetry.collector.controller;
 
+import com.google.protobuf.Empty;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
-import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
-import ru.yandex.practicum.telemetry.collector.service.CollectorService;
+import net.devh.boot.grpc.server.service.GrpcService;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.telemetry.collector.handler.SensorEventHandler;
 
-@RestController
-@RequestMapping("/events")
+import java.util.Map;
+
+@GrpcService
 @RequiredArgsConstructor
-public class CollectorController {
-    private final CollectorService service;
+public class CollectorController extends CollectorControllerGrpc.CollectorControllerImplBase {
+    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlerMap;
 
-    @PostMapping("/sensors")
-    public void collectEvent(@RequestBody SensorEvent event) {
-        service.collect(event);
-    }
+    @Override
+    public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        try {
+            SensorEventHandler handler = sensorEventHandlerMap.get(request.getPayloadCase());
 
-    @PostMapping("/hubs")
-    public void collectEvent(@RequestBody HubEvent event) {
-        service.collect(event);
+            if (handler == null) {
+                String m = String.format("Unknown type of sensor event: %s", request.getPayloadCase());
+                throw new IllegalArgumentException(m);
+            }
+
+            handler.handle(request);
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL
+                            .withDescription(e.getLocalizedMessage())
+                            .withCause(e)
+            ));
+        }
     }
 }
