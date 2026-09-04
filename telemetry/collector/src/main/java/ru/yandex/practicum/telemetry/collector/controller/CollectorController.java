@@ -4,7 +4,6 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
@@ -12,13 +11,28 @@ import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.telemetry.collector.handler.event.SensorEventHandler;
 import ru.yandex.practicum.telemetry.collector.handler.hub.HubEventHandler;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @GrpcService
-@RequiredArgsConstructor
 public class CollectorController extends CollectorControllerGrpc.CollectorControllerImplBase {
     private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorHandlers;
     private final Map<HubEventProto.PayloadCase, HubEventHandler> hubHandlers;
+
+    public CollectorController(List<SensorEventHandler> sensorHandlers, List<HubEventHandler> hubHandlers) {
+        this.sensorHandlers = sensorHandlers.stream()
+                .collect(Collectors.toMap(
+                        SensorEventHandler::getMessageType,
+                        Function.identity()
+                ));
+        this.hubHandlers = hubHandlers.stream()
+                .collect(Collectors.toMap(
+                        HubEventHandler::getMessageType,
+                        Function.identity()
+                ));
+    }
 
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
