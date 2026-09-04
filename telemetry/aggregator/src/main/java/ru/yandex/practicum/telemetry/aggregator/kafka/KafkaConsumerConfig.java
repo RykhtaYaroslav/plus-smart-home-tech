@@ -1,12 +1,12 @@
-package ru.yandex.practicum.telemetry.aggregator.config;
+package ru.yandex.practicum.telemetry.aggregator.kafka;
 
-import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.telemetry.mapper.SensorEventDeserializer;
 
 import java.util.Properties;
@@ -44,7 +44,7 @@ public class KafkaConsumerConfig {
     private int fetchMaxWaitMs;
 
     @Bean
-    public KafkaConsumer<String, SpecificRecordBase> kafkaConsumer() {
+    public KafkaConsumer<String, SensorEventAvro> kafkaConsumer() {
         Properties properties = new Properties();
 
         // Адреса Kafka-брокеров, к которым consumer подключается при запуске.
