@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.collector.handler;
+package ru.yandex.practicum.telemetry.collector.handler.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

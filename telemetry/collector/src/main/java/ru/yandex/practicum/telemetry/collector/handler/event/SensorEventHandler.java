@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.collector.handler;
+package ru.yandex.practicum.telemetry.collector.handler.event;
 
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto.PayloadCase;
