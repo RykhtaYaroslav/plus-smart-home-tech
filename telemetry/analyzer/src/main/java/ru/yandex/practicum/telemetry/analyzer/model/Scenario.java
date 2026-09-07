@@ -4,9 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.HashSet;
@@ -25,18 +24,13 @@ public class Scenario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "hub_id")
     private String hubId;
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "scenario_conditions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "condition_id"))
-    private Set<Condition> conditions = new HashSet<>();
+    @OneToMany(mappedBy = "scenario")
+    private Set<ScenarioCondition> conditions = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "scenario_actions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "action_id"))
-    private Set<Action> actions = new HashSet<>();
+    @OneToMany(mappedBy = "scenario")
+    private Set<ScenarioAction> actions = new HashSet<>();
 }
