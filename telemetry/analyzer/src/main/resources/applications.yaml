@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: analyzer
+
+analyzer:
+  kafka:
+    bootstrap-servers: localhost:9092
+    auto-offset-reset: earliest
+
+    hub-event-consumer:
+      topic: telemetry.hubs.v1
+      group-id: analyzer-hub-events
+
+    snapshot-consumer:
+      topic: telemetry.snapshots.v1
+      group-id: analyzer-snapshots
