@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: aggregator
+
+aggregator:
+  kafka:
+    bootstrap-servers: localhost:9092
+    sensor-topic: telemetry.sensors.v1
+    snapshot-topic: telemetry.snapshots.v1
+    consumer:
+      group-id: telemetry.aggregator
+      client-id: telemetry-aggregator-consumer
+      auto-offset-reset: earliest
+      max-poll-records: 500
+      max-poll-interval-ms: 300000
+      session-timeout-ms: 45000
+      heartbeat-interval-ms: 3000
+      fetch-min-bytes: 1
+      fetch-max-wait-ms: 500
