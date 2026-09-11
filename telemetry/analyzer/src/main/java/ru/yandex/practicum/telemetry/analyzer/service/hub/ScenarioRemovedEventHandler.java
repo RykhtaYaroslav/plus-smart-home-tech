@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.analyzer.service;
+package ru.yandex.practicum.telemetry.analyzer.service.hub;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

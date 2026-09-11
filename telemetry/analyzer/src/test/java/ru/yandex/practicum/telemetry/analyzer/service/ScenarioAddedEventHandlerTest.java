@@ -30,6 +30,7 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioConditionAvro;
 import ru.yandex.practicum.telemetry.analyzer.model.Scenario;
 import ru.yandex.practicum.telemetry.analyzer.repository.ScenarioRepository;
+import ru.yandex.practicum.telemetry.analyzer.service.hub.ScenarioAddedEventHandler;
 
 import java.time.Instant;
 import java.util.ArrayList;

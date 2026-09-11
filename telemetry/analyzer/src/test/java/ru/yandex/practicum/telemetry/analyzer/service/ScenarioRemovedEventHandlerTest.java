@@ -19,6 +19,7 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 import ru.yandex.practicum.telemetry.analyzer.model.Scenario;
 import ru.yandex.practicum.telemetry.analyzer.repository.ScenarioRepository;
+import ru.yandex.practicum.telemetry.analyzer.service.hub.ScenarioRemovedEventHandler;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
