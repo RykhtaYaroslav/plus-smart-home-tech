@@ -20,6 +20,7 @@
 
 # Package Files #
 *.jar
+/hub-router/scripts/hub-router.jar
 *.war
 *.nar
 *.ear
@@ -126,3 +127,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /amplicode.xml
+/hub-router/nul
