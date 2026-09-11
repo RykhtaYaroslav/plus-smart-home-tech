@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 @DataJpaTest(showSql = false, properties = {
+        "spring.sql.init.mode=never",
         "spring.datasource.url=jdbc:h2:mem:scenario-handler;MODE=PostgreSQL;NON_KEYWORDS=VALUE",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })

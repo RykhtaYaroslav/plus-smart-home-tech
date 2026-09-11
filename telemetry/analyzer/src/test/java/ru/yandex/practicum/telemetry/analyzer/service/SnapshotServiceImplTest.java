@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,12 +28,13 @@ import static org.mockito.Mockito.*;
 class SnapshotServiceImplTest {
     private final ScenarioRepository repository = mock(ScenarioRepository.class);
     private final HubRouterControllerBlockingStub client = mock(HubRouterControllerBlockingStub.class);
-    private final SnapshotServiceImpl service = new SnapshotServiceImpl(repository, client);
+    private final SnapshotServiceImpl service = new SnapshotServiceImpl(repository, client, 5000);
     private final Instant timestamp = Instant.parse("2026-09-11T10:15:30.123Z");
     private Scenario scenario;
 
     @BeforeEach
     void setUp() {
+        lenient().when(client.withDeadlineAfter(5000, TimeUnit.MILLISECONDS)).thenReturn(client);
         scenario = new Scenario();
         scenario.setHubId("hub-1");
         scenario.setName("climate");

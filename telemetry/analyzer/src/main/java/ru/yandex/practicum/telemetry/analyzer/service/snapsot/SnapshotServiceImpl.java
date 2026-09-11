@@ -1,7 +1,10 @@
 package ru.yandex.practicum.telemetry.analyzer.service.snapsot;
 
 import com.google.protobuf.Timestamp;
+import io.grpc.StatusRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
@@ -28,19 +31,27 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class SnapshotServiceImpl implements SnapshotService {
     private final HubRouterControllerBlockingStub hubRouterClient;
     private final ScenarioRepository scenarioRepository;
+    private final long requestTimeoutMs;
 
     public SnapshotServiceImpl(
             ScenarioRepository scenarioRepository,
             @GrpcClient("hub-router")
-            HubRouterControllerBlockingStub hubRouterClient
+            HubRouterControllerBlockingStub hubRouterClient,
+            @Value("${analyzer.hub-router.request-timeout-ms:5000}") long requestTimeoutMs
     ) {
+        if (requestTimeoutMs <= 0) {
+            throw new IllegalArgumentException("Hub Router request timeout must be positive");
+        }
         this.scenarioRepository = scenarioRepository;
         this.hubRouterClient = hubRouterClient;
+        this.requestTimeoutMs = requestTimeoutMs;
     }
 
     @Override
@@ -101,7 +112,17 @@ public class SnapshotServiceImpl implements SnapshotService {
                     .setTimestamp(timestamp)
                     .build();
 
-            hubRouterClient.handleDeviceAction(request);
+            try {
+                hubRouterClient.withDeadlineAfter(requestTimeoutMs, TimeUnit.MILLISECONDS)
+                        .handleDeviceAction(request);
+            } catch (StatusRuntimeException e) {
+                // The server may have applied the action even if its response was lost.
+                // Retrying here could execute non-idempotent actions (INVERSE) twice.
+                log.error("Hub Router action failed: hubId={}, scenario={}, sensorId={}, type={}, timestamp={}, status={}",
+                        snapshot.getHubId(), scenario.getName(), sensor.getId(), action.getType(),
+                        instant, e.getStatus(), e);
+                throw e;
+            }
         }
     }
 

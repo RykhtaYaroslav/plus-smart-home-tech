@@ -20,6 +20,7 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 import ru.yandex.practicum.telemetry.analyzer.model.Scenario;
 import ru.yandex.practicum.telemetry.analyzer.repository.ScenarioRepository;
 import ru.yandex.practicum.telemetry.analyzer.service.hub.ScenarioRemovedEventHandler;
+import ru.yandex.practicum.telemetry.analyzer.service.hub.ScenarioRemovalService;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(showSql = false, properties = {
+        "spring.sql.init.mode=never",
         "spring.datasource.url=jdbc:h2:mem:scenario-removal;MODE=PostgreSQL;NON_KEYWORDS=VALUE",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
@@ -195,7 +197,7 @@ class ScenarioRemovedEventHandlerTest {
     @Configuration(proxyBeanMethods = false)
     @EnableJpaRepositories(basePackageClasses = ScenarioRepository.class)
     @EntityScan(basePackageClasses = Scenario.class)
-    @Import(ScenarioRemovedEventHandler.class)
+    @Import({ScenarioRemovedEventHandler.class, ScenarioRemovalService.class})
     static class Config {
     }
 }

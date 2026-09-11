@@ -1,8 +1,30 @@
 spring:
   application:
     name: analyzer
+  datasource:
+    url: ${ANALYZER_DB_URL:jdbc:postgresql://localhost:5432/telemetry_analyzer}
+    username: ${ANALYZER_DB_USERNAME:dbuser}
+    password: ${ANALYZER_DB_PASSWORD:12345}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+grpc:
+  server:
+    port: -1
+  client:
+    hub-router:
+      address: ${HUB_ROUTER_ADDRESS:static://localhost:59090}
+      negotiation-type: plaintext
 
 analyzer:
+  hub-router:
+    request-timeout-ms: 5000
   kafka:
     bootstrap-servers: localhost:9092
     auto-offset-reset: earliest
