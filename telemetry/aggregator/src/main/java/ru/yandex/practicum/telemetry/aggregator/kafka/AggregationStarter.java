@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,10 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.telemetry.aggregator.AggregationService;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 @Component
 @RequiredArgsConstructor
@@ -44,6 +47,8 @@ public class AggregationStarter {
             while (true) {
                 ConsumerRecords<String, SensorEventAvro> records = consumer.poll(POLL_TIMEOUT);
 
+                List<Future<RecordMetadata>> pendingSends = new ArrayList<>();
+
                 for (ConsumerRecord<String, SensorEventAvro> record : records) {
                     SensorEventAvro event = record.value();
 
@@ -58,12 +63,23 @@ public class AggregationStarter {
                                 value
                         );
 
-                        producer.send(message);
+                        // Отправка остаётся асинхронной, а её результат проверяется
+                        // перед подтверждением offsets текущего poll().
+                        pendingSends.add(producer.send(message));
                     }
                 }
 
                 if (!records.isEmpty()) {
                     producer.flush();
+
+                    // flush() дожидается завершения буферизованных отправок,
+                    // но Future нужен для явной проверки ошибок доставки.
+                    for (Future<RecordMetadata> pendingSend : pendingSends) {
+                        pendingSend.get();
+                    }
+
+                    // Подтверждаем пакет только после успешной обработки всех
+                    // его записей и подтверждения всех отправок снапшотов.
                     consumer.commitSync();
                 }
             }
@@ -74,7 +90,6 @@ public class AggregationStarter {
         } finally {
             try {
                 producer.flush();
-                consumer.commitSync();
             } finally {
                 consumer.close();
                 producer.close();
