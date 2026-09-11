@@ -20,6 +20,8 @@ grpc:
   client:
     hub-router:
       address: ${HUB_ROUTER_ADDRESS:static://localhost:59090}
+      enable-keep-alive: true
+      keep-alive-without-calls: true
       negotiation-type: plaintext
 
 analyzer:
