@@ -31,6 +31,7 @@ public class AggregationStarter {
     private final AggregationService aggregationService;
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(500);
+    private static final Duration PRODUCER_CLOSE_TIMEOUT = Duration.ofSeconds(5);
 
     @Value("${aggregator.kafka.sensor-topic}")
     private String sensorTopic;
@@ -92,7 +93,7 @@ public class AggregationStarter {
                 producer.flush();
             } finally {
                 consumer.close();
-                producer.close();
+                producer.close(PRODUCER_CLOSE_TIMEOUT);
             }
         }
     }
