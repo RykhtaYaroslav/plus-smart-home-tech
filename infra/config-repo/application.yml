@@ -12,3 +12,4 @@ logging:
 
 kafka:
   bootstrap-servers: "localhost:9092"
+  auto-offset-reset: earliest
