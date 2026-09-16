@@ -18,7 +18,7 @@ grpc:
     port: -1
   client:
     hub-router:
-      address: ${HUB_ROUTER_ADDRESS:static://localhost:59090}
+      address: 'discovery:///hub-router'
       enable-keep-alive: true
       keep-alive-without-calls: true
       negotiation-type: plaintext
