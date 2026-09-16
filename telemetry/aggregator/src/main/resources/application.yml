@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: aggregator
+
+aggregator:
+  kafka:
+    bootstrap-servers: localhost:9092
+    sensor-topic: telemetry.sensors.v1
+    snapshot-topic: telemetry.snapshots.v1
+    producer:
+      # Критерий подтверждения записи: all — после подтверждения всеми in-sync репликами.
+      acks: all
+      # Максимальное число повторных попыток отправки при временных ошибках.
+      retries: 10
+      # Защищает от дубликатов при повторной отправке одного сообщения этим producer.
+      enable-idempotence: true
+      # Максимальное время от первой попытки отправки до окончательной ошибки.
+      delivery-timeout-ms: 120000
+      # Максимальное время ожидания ответа брокера на один запрос.
+      request-timeout-ms: 30000
+      # Максимальное время ожидания дополнительных сообщений для формирования batch.
+      linger-ms: 5
+      # Максимальный размер одного batch сообщений в байтах.
+      batch-size: 16384
+      # Общий объём памяти producer для буферизации сообщений перед отправкой.
+      buffer-memory: 33554432
+    consumer:
+      group-id: telemetry.aggregator
+      client-id: telemetry-aggregator-consumer
+      auto-offset-reset: earliest
+      max-poll-records: 500
+      max-poll-interval-ms: 300000
+      session-timeout-ms: 45000
+      heartbeat-interval-ms: 3000
+      fetch-min-bytes: 1
+      fetch-max-wait-ms: 500
