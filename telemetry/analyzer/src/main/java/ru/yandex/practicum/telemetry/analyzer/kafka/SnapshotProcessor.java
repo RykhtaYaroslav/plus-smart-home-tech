@@ -1,12 +1,12 @@
 package ru.yandex.practicum.telemetry.analyzer.kafka;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.telemetry.analyzer.service.snapsot.SnapshotService;
@@ -15,11 +15,16 @@ import java.time.Duration;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class SnapshotProcessor implements Runnable {
     private final KafkaConsumer<String, SensorsSnapshotAvro> consumer;
     private final SnapshotService snapshotService;
+
+    public SnapshotProcessor(@Qualifier("snapshotConsumer") KafkaConsumer<String, SensorsSnapshotAvro> consumer,
+                             SnapshotService snapshotService) {
+        this.consumer = consumer;
+        this.snapshotService = snapshotService;
+    }
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(500);
 
