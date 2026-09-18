@@ -8,9 +8,9 @@ import ru.yandex.practicum.telemetry.aggregator.kafka.AggregationStarter;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-public class AggregatorApplication {
+public class Aggregator {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(AggregatorApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(Aggregator.class, args);
 
         AggregationStarter starter = context.getBean(AggregationStarter.class);
         starter.start();
