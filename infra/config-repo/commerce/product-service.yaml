@@ -6,3 +6,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/product_db
     username: dbuser
     password: "12345"
+  sql:
+    init:
+      mode: always
