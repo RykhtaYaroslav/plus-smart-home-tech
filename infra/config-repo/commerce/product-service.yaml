@@ -2,6 +2,9 @@ server:
   port: 0
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
   datasource:
     url: jdbc:postgresql://localhost:5432/product_db
     username: dbuser
