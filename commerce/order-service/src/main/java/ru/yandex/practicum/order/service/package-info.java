@@ -1,4 +1,4 @@
 /**
- * TODO: реализуйте бизнес-логику заказов.
+ * Бизнес-логика заказов.
  */
 package ru.yandex.practicum.order.service;
