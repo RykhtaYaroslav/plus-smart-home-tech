@@ -1,8 +1,10 @@
 package ru.yandex.practicum.order.exception;
 
-public class NotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class NotFoundException extends BaseCustomException {
 
     public NotFoundException(String message) {
-        super(message);
+        super(message, "Не удалось найти сущность", HttpStatus.NOT_FOUND);
     }
 }

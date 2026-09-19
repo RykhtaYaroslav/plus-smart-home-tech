@@ -1,0 +1,406 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Order Service API",
+    "description": "API оформления и просмотра заказов. На текущем этапе сервис сохраняет заказы автономно, без межсервисных вызовов.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://192.168.1.115:52712",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Заказы",
+      "description": "Оформление и просмотр заказов"
+    }
+  ],
+  "paths": {
+    "/api/orders": {
+      "get": {
+        "tags": [
+          "Заказы"
+        ],
+        "summary": "Все заказы",
+        "description": "Возвращает список всех заказов",
+        "operationId": "getAllOrders",
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Заказы"
+        ],
+        "summary": "Создать заказ",
+        "description": "Создаёт заказ в локальной базе. На этом этапе order-service не обращается к product-service и inventory-service.",
+        "operationId": "createOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "get": {
+        "tags": [
+          "Заказы"
+        ],
+        "summary": "Получить заказ по ID",
+        "operationId": "getOrderById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID заказа",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/by-email": {
+      "get": {
+        "tags": [
+          "Заказы"
+        ],
+        "summary": "Заказы клиента",
+        "description": "Поиск заказов по email клиента",
+        "operationId": "getOrdersByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email клиента",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP-статус",
+            "format": "int32",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение об ошибке"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время ошибки",
+            "format": "date-time"
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Детали ошибок валидации"
+            },
+            "description": "Детали ошибок валидации"
+          }
+        },
+        "description": "Ответ с информацией об ошибке"
+      },
+      "CreateOrderRequest": {
+        "required": [
+          "customerEmail",
+          "customerName",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "customerName": {
+            "type": "string",
+            "description": "Имя покупателя",
+            "example": "Иван Петров"
+          },
+          "customerEmail": {
+            "type": "string",
+            "description": "Email покупателя",
+            "example": "ivan@example.com"
+          },
+          "items": {
+            "type": "array",
+            "description": "Список товаров в заказе",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemRequest"
+            }
+          }
+        },
+        "description": "Запрос на создание заказа"
+      },
+      "OrderItemRequest": {
+        "required": [
+          "price",
+          "productId",
+          "productName",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "description": "ID товара",
+            "format": "int64",
+            "example": 1
+          },
+          "productName": {
+            "type": "string",
+            "description": "Название товара на момент оформления заказа",
+            "example": "SHT LED Smart Bulb W3"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "integer",
+            "description": "Количество",
+            "format": "int32",
+            "example": 2
+          },
+          "price": {
+            "minimum": 0.01,
+            "exclusiveMinimum": false,
+            "type": "number",
+            "description": "Цена за единицу на момент оформления заказа",
+            "example": 1490.0
+          }
+        },
+        "description": "Позиция заказа со снимком данных товара"
+      },
+      "OrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID заказа",
+            "format": "int64",
+            "example": 1
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Имя покупателя",
+            "example": "Иван Петров"
+          },
+          "customerEmail": {
+            "type": "string",
+            "description": "Email покупателя",
+            "example": "ivan@example.com"
+          },
+          "status": {
+            "type": "string",
+            "description": "Статус заказа",
+            "example": "CREATED"
+          },
+          "totalPrice": {
+            "type": "number",
+            "description": "Общая стоимость заказа",
+            "example": 4980.0
+          },
+          "statusDetails": {
+            "type": "string",
+            "description": "Дополнительная информация о статусе"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Дата создания заказа",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "description": "Позиции заказа",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          }
+        },
+        "description": "Информация о заказе"
+      },
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID позиции",
+            "format": "int64",
+            "example": 1
+          },
+          "productId": {
+            "type": "integer",
+            "description": "ID товара",
+            "format": "int64",
+            "example": 1
+          },
+          "productName": {
+            "type": "string",
+            "description": "Название товара",
+            "example": "SHT LED Smart Bulb W3"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Количество",
+            "format": "int32",
+            "example": 2
+          },
+          "price": {
+            "type": "number",
+            "description": "Цена за единицу",
+            "example": 1490.0
+          }
+        },
+        "description": "Позиция в заказе"
+      }
+    }
+  }
+}

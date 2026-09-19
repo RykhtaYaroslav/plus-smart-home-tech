@@ -1,0 +1,510 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Inventory Service API",
+    "description": "API управления складскими остатками",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://192.168.1.115:52710",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Склад",
+      "description": "Управление складскими остатками"
+    }
+  ],
+  "paths": {
+    "/api/inventory": {
+      "get": {
+        "tags": [
+          "Склад"
+        ],
+        "summary": "Получить все остатки",
+        "description": "Возвращает остатки по всем товарам",
+        "operationId": "getAllInventory",
+        "responses": {
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Склад"
+        ],
+        "summary": "Обновить остатки",
+        "description": "Обновляет количество товара на складе. Запись должна уже существовать.",
+        "operationId": "updateInventory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInventoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Склад"
+        ],
+        "summary": "Создать запись об остатках",
+        "description": "Создаёт запись об остатках для нового товара. Если запись уже существует - ошибка.",
+        "operationId": "createInventory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInventoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/reserve": {
+      "post": {
+        "tags": [
+          "Склад"
+        ],
+        "summary": "Зарезервировать товар",
+        "description": "Резервирует указанное количество товара. При конфликте (параллельные запросы на резерв одного и того же товара) возвращает 409 Conflict.",
+        "operationId": "reserveStock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReserveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/{productId}": {
+      "get": {
+        "tags": [
+          "Склад"
+        ],
+        "summary": "Остатки по товару",
+        "description": "Возвращает остатки для конкретного товара",
+        "operationId": "getByProductId",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID товара",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP-статус",
+            "format": "int32",
+            "example": 404
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение об ошибке"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Время ошибки",
+            "format": "date-time"
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Детали ошибок валидации"
+            },
+            "description": "Детали ошибок валидации"
+          }
+        },
+        "description": "Ответ с информацией об ошибке"
+      },
+      "UpdateInventoryRequest": {
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "description": "ID товара",
+            "format": "int64",
+            "example": 1
+          },
+          "quantity": {
+            "minimum": 0,
+            "type": "integer",
+            "description": "Количество на складе",
+            "format": "int32",
+            "example": 100
+          }
+        },
+        "description": "Запрос на установку количества товара на складе"
+      },
+      "InventoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID записи",
+            "format": "int64",
+            "example": 1
+          },
+          "productId": {
+            "type": "integer",
+            "description": "ID товара",
+            "format": "int64",
+            "example": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Общее количество на складе",
+            "format": "int32",
+            "example": 50
+          },
+          "reservedQuantity": {
+            "type": "integer",
+            "description": "Зарезервированное количество",
+            "format": "int32",
+            "example": 5
+          },
+          "availableQuantity": {
+            "type": "integer",
+            "description": "Доступное количество (общее - зарезервированное)",
+            "format": "int32",
+            "example": 45
+          }
+        },
+        "description": "Информация об остатках товара на складе"
+      },
+      "ReserveRequest": {
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "description": "ID товара",
+            "format": "int64",
+            "example": 1
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "integer",
+            "description": "Количество для резервирования",
+            "format": "int32",
+            "example": 2
+          }
+        },
+        "description": "Запрос на резервирование товара"
+      },
+      "ReserveResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Резервирование выполнено успешно",
+            "example": true
+          },
+          "availableQuantity": {
+            "type": "integer",
+            "description": "Доступное количество после операции",
+            "format": "int32",
+            "example": 43
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение",
+            "example": "Товар успешно зарезервирован"
+          }
+        },
+        "description": "Результат резервирования товара"
+      }
+    }
+  }
+}
