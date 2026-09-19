@@ -1,4 +1,4 @@
-package ru.yandex.practicum.product.exception;
+package ru.yandex.practicum.inventory.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
