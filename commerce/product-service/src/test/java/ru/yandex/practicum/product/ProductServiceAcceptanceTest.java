@@ -22,7 +22,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.config.import=",
+        "spring.cloud.config.enabled=false",
+        "spring.datasource.url=jdbc:h2:mem:product_acceptance;DB_CLOSE_DELAY=-1",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.sql.init.mode=never",
+        "eureka.client.enabled=false"
+})
 @AutoConfigureMockMvc
 @SuppressWarnings("unchecked")
 class ProductServiceAcceptanceTest {

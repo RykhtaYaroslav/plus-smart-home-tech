@@ -73,6 +73,17 @@ class OrderServiceAcceptanceTest {
         assertThat(readMap(byIdResponse).get("customerEmail"))
                 .as("GET /api/orders/{id} должен вернуть заказ с ожидаемым email клиента")
                 .isEqualTo("acceptance-buyer@example.com");
+        Map<String, Object> stored = readMap(byIdResponse);
+        assertThat(stored.get("createdAt")).isNotNull();
+        assertThat(asDecimal(stored.get("totalPrice"))).isEqualByComparingTo("8270.00");
+        assertThat((List<Map<String, Object>>) stored.get("items"))
+                .hasSize(2)
+                .allSatisfy(item -> assertThat(item.get("id")).isNotNull())
+                .anySatisfy(item -> {
+                    assertThat(item.get("productName")).isEqualTo("Acceptance Smart Lamp");
+                    assertThat(asDecimal(item.get("price"))).isEqualByComparingTo("3490.00");
+                    assertThat(item.get("quantity")).isEqualTo(2);
+                });
 
         MvcResult byEmailResponse = mvc.perform(get("/api/orders/by-email")
                 .param("email", "acceptance-buyer@example.com"))
@@ -85,6 +96,16 @@ class OrderServiceAcceptanceTest {
                 .as("Поиск заказов по email должен вернуть созданный заказ")
                 .anySatisfy(item -> assertThat(item)
                         .containsEntry("customerEmail", "acceptance-buyer@example.com"));
+
+        MvcResult allResponse = mvc.perform(get("/api/orders")).andReturn();
+        assertThat(status(allResponse)).isEqualTo(200);
+        assertThat(readList(allResponse))
+                .anySatisfy(item -> assertThat(asLong(item.get("id"))).isEqualTo(orderId));
+
+        MvcResult unknownEmailResponse = mvc.perform(get("/api/orders/by-email")
+                .param("email", "unknown@example.com")).andReturn();
+        assertThat(status(unknownEmailResponse)).isEqualTo(200);
+        assertThat(readList(unknownEmailResponse)).isEmpty();
     }
 
     @Test
@@ -105,6 +126,41 @@ class OrderServiceAcceptanceTest {
                 .containsKeys("message", "validationErrors");
     }
 
+    @Test
+    void shouldReturnNotFoundForUnknownOrder() throws Exception {
+        MvcResult response = mvc.perform(get("/api/orders/{id}", Long.MAX_VALUE)).andReturn();
+
+        assertThat(status(response)).isEqualTo(404);
+        assertThat(readMap(response))
+                .containsEntry("status", 404)
+                .containsEntry("message", "Заказ с id = " + Long.MAX_VALUE + " не найден");
+        assertThat(readMap(response).get("timestamp")).isNotNull();
+    }
+
+    @Test
+    void shouldReturnBadRequestForNonPositiveOrderId() throws Exception {
+        MvcResult response = mvc.perform(get("/api/orders/{id}", 0)).andReturn();
+
+        assertThat(status(response)).isEqualTo(400);
+        assertThat(readMap(response)).containsEntry("status", 400);
+        assertThat(readMap(response).get("timestamp")).isNotNull();
+    }
+
+    @Test
+    void shouldReturnValidationErrorsForInvalidOrderItem() throws Exception {
+        CreateOrderRequest request = new CreateOrderRequest(
+                "Buyer",
+                "buyer@example.com",
+                List.of(new OrderItemRequest(1L, "Lamp", 0, BigDecimal.ZERO))
+        );
+
+        MvcResult response = postJson("/api/orders", request);
+
+        assertThat(status(response)).isEqualTo(400);
+        assertThat((Map<String, String>) readMap(response).get("validationErrors"))
+                .containsKeys("items[0].quantity", "items[0].price");
+    }
+
     private MvcResult postJson(String url, Object body) throws Exception {
         return mvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,12 +173,12 @@ class OrderServiceAcceptanceTest {
     }
 
     private Map<String, Object> readMap(MvcResult result) throws Exception {
-        return json.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        return json.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<>() {
         });
     }
 
     private List<Map<String, Object>> readList(MvcResult result) throws Exception {
-        return json.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        return json.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<>() {
         });
     }
 

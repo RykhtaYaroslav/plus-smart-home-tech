@@ -15,7 +15,7 @@ import java.util.Properties;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaProducerConfig {
-    @Value("${collector.kafka.bootstrap-servers}")
+    @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Bean
