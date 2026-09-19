@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.inventory.dto.ReserveRequest;
 import ru.yandex.practicum.inventory.dto.UpdateInventoryRequest;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +41,7 @@ class InventoryServiceAcceptanceTest {
                 .as("POST /api/inventory должен создавать складскую запись и возвращать HTTP 201 Created")
                 .isEqualTo(201);
         Map<String, Object> created = readMap(createResponse);
+        assertThat(asLong(created.get("id"))).isNotNull();
         assertThat(asLong(created.get("productId")))
                 .as("Созданная складская запись должна относиться к переданному productId")
                 .isEqualTo(productId);
@@ -87,6 +89,23 @@ class InventoryServiceAcceptanceTest {
         assertThat(asInt(reserve.get("availableQuantity")))
                 .as("После резервирования доступное количество должно уменьшиться")
                 .isEqualTo(11);
+
+        MvcResult secondReserveResponse = postJson("/api/inventory/reserve", new ReserveRequest(productId, 2));
+        assertThat(status(secondReserveResponse)).isEqualTo(200);
+        assertThat(asInt(readMap(secondReserveResponse).get("availableQuantity"))).isEqualTo(9);
+
+        MvcResult storedResponse = mvc.perform(get("/api/inventory/{productId}", productId)).andReturn();
+        assertThat(status(storedResponse)).isEqualTo(200);
+        assertThat(readMap(storedResponse))
+                .containsEntry("reservedQuantity", 6)
+                .containsEntry("availableQuantity", 9);
+
+        MvcResult allResponse = mvc.perform(get("/api/inventory")).andReturn();
+        assertThat(status(allResponse)).isEqualTo(200);
+        List<Map<String, Object>> items = json.readValue(allResponse.getResponse().getContentAsByteArray(),
+                new TypeReference<>() {
+                });
+        assertThat(items).anySatisfy(item -> assertThat(asLong(item.get("productId"))).isEqualTo(productId));
     }
 
     @Test
@@ -116,6 +135,46 @@ class InventoryServiceAcceptanceTest {
                 .containsKeys("message", "validationErrors");
     }
 
+    @Test
+    void shouldReturnConflictForDuplicateInventory() throws Exception {
+        UpdateInventoryRequest request = new UpdateInventoryRequest(100_003L, 10);
+        assertThat(status(postJson("/api/inventory", request))).isEqualTo(201);
+
+        MvcResult response = postJson("/api/inventory", request);
+
+        assertThat(status(response)).isEqualTo(409);
+        assertThat(readMap(response)).containsEntry("status", 409);
+    }
+
+    @Test
+    void shouldReturnNotFoundForUnknownProduct() throws Exception {
+        long productId = Long.MAX_VALUE;
+        MvcResult getResponse = mvc.perform(get("/api/inventory/{productId}", productId)).andReturn();
+        MvcResult updateResponse = mvc.perform(put("/api/inventory")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(new UpdateInventoryRequest(productId, 10))))
+                .andReturn();
+        MvcResult reserveResponse = postJson("/api/inventory/reserve", new ReserveRequest(productId, 1));
+
+        for (MvcResult response : List.of(getResponse, updateResponse, reserveResponse)) {
+            assertThat(status(response)).isEqualTo(404);
+            assertThat(readMap(response)).containsEntry("status", 404);
+        }
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidReserveQuantity() throws Exception {
+        long productId = 100_004L;
+        assertThat(status(postJson("/api/inventory", new UpdateInventoryRequest(productId, 10))))
+                .isEqualTo(201);
+
+        MvcResult response = postJson("/api/inventory/reserve", new ReserveRequest(productId, 0));
+
+        assertThat(status(response)).isEqualTo(400);
+        assertThat((Map<String, String>) readMap(response).get("validationErrors"))
+                .containsKey("quantity");
+    }
+
     private MvcResult postJson(String url, Object body) throws Exception {
         return mvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +187,7 @@ class InventoryServiceAcceptanceTest {
     }
 
     private Map<String, Object> readMap(MvcResult result) throws Exception {
-        return json.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        return json.readValue(result.getResponse().getContentAsByteArray(), new TypeReference<>() {
         });
     }
 
