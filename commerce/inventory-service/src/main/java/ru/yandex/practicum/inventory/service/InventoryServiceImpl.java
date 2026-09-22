@@ -1,8 +1,11 @@
 package ru.yandex.practicum.inventory.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.yandex.practicum.inventory.dto.InventoryDto;
 import ru.yandex.practicum.inventory.dto.ReserveRequest;
 import ru.yandex.practicum.inventory.dto.ReserveResponse;
@@ -17,6 +20,7 @@ import ru.yandex.practicum.inventory.repository.InventoryRepository;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
@@ -33,32 +37,46 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public InventoryDto update(UpdateInventoryRequest request) {
+        log.debug("Изменение остатков: productId={}, quantity={}", request.productId(), request.quantity());
         InventoryItem item = getInventoryOrThrow(request.productId());
         ensureQuantityCanBeUpdated(item, request.quantity());
+        Integer previousQuantity = item.getQuantity();
 
         mapper.updateEntity(request, item);
         inventoryRepository.save(item);
+
+        logAfterCommit("Остатки изменены: productId={}, quantity={} -> {}, reservedQuantity={}, availableQuantity={}",
+                item.getProductId(), previousQuantity, item.getQuantity(),
+                item.getReservedQuantity(), item.getAvailableQuantity());
 
         return mapper.toDto(item);
     }
 
     @Override
     public InventoryDto create(UpdateInventoryRequest request) {
+        log.debug("Добавление остатков: productId={}, quantity={}", request.productId(), request.quantity());
         ensureInventoryDoesNotExist(request.productId());
 
         InventoryItem item = mapper.toEntity(request);
         inventoryRepository.save(item);
+
+        logAfterCommit("Остатки добавлены: productId={}, quantity={}, reservedQuantity={}, availableQuantity={}",
+                item.getProductId(), item.getQuantity(), item.getReservedQuantity(), item.getAvailableQuantity());
 
         return mapper.toDto(item);
     }
 
     @Override
     public ReserveResponse reserve(ReserveRequest request) {
+        log.debug("Резервирование товара: productId={}, quantity={}", request.productId(), request.quantity());
         InventoryItem item = getInventoryOrThrow(request.productId());
         ensureStockIsAvailable(item, request.quantity());
 
         item.setReservedQuantity(item.getReservedQuantity() + request.quantity());
         inventoryRepository.save(item);
+
+        logAfterCommit("Товар зарезервирован: productId={}, quantity={}, reservedQuantity={}, availableQuantity={}",
+                item.getProductId(), request.quantity(), item.getReservedQuantity(), item.getAvailableQuantity());
 
         String message = String.format("Товар с productId = %d успешно зарезервирован", request.productId());
         return new ReserveResponse(true, item.getAvailableQuantity(), message);
@@ -68,6 +86,15 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional(readOnly = true)
     public InventoryDto findByProductId(Long productId) {
         return mapper.toDto(getInventoryOrThrow(productId));
+    }
+
+    private void logAfterCommit(String message, Object... arguments) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                log.info(message, arguments);
+            }
+        });
     }
 
     private InventoryItem getInventoryOrThrow(Long productId) {
