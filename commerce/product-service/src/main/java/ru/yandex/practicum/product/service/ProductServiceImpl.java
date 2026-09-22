@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDto> search(String query) {
-        List<Product> products = productRepository.findByNameContainingIgnoreCase(query);
+        List<Product> products = productRepository.findByNameContainingIgnoreCaseAndActiveTrue(query);
         return products.stream().map(mapper::toDto).toList();
     }
 
@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> findByCategoryId(Long categoryId) {
         getCategoryOrThrow(categoryId);
 
-        List<Product> products = productRepository.findAllByCategoryId(categoryId);
+        List<Product> products = productRepository.findAllByCategoryIdAndActiveTrue(categoryId);
 
         return products.stream().map(mapper::toDto).toList();
     }
