@@ -1,5 +1,7 @@
 # Тестовая конфигурация: H2 вместо PostgreSQL.
 spring:
+  config:
+    import: ""
   cloud:
     config:
       enabled: false

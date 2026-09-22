@@ -1,18 +1,20 @@
 # Тестовая конфигурация: H2 вместо PostgreSQL.
 spring:
+  config:
+    import: ""
   cloud:
     config:
       enabled: false
   datasource:
-    url: jdbc:h2:mem:inventory_test;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:inventory_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
   sql:
     init:
-      mode: never
+      mode: always
 
 eureka:
   client:
