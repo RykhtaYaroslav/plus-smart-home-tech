@@ -10,19 +10,10 @@ spring:
         initial-interval: 1000
         multiplier: 1.1
         max-interval: 2000
-    openfeign:
-      client:
-        config:
-          default: # применяется по умолчанию для всех клиентов
-            connectTimeout: 2000
-            readTimeout: 3000
-          inventory-service:
-            loggerLevel: basic
 
 logging:
   level:
     ru.yandex.practicum.telemetry: WARN
-    ru.yandex.practicum.order.feign.InventoryClient: DEBUG
     org:
       springframework: ERROR
       apache.kafka: WARN

@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Configuration
 public class FeignRequestIdConfig {
+    private static final String REQUEST_ID_ATTRIBUTE = FeignRequestIdConfig.class.getName() + ".requestId";
 
     @Bean
     public RequestInterceptor requestIdInterceptor() {
@@ -32,7 +33,12 @@ public class FeignRequestIdConfig {
         String requestId = request.getHeader("X-Request-Id");
 
         if (requestId == null || requestId.isBlank()) {
-            return UUID.randomUUID().toString();
+            Object generatedRequestId = request.getAttribute(REQUEST_ID_ATTRIBUTE);
+            if (generatedRequestId == null) {
+                generatedRequestId = UUID.randomUUID().toString();
+                request.setAttribute(REQUEST_ID_ATTRIBUTE, generatedRequestId);
+            }
+            return generatedRequestId.toString();
         }
 
         return requestId;

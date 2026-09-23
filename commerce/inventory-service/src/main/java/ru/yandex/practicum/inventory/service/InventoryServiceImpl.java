@@ -83,6 +83,26 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    public ReserveResponse release(ReserveRequest request) {
+        log.debug("Снятие резерва товара: productId={}, quantity={}", request.productId(), request.quantity());
+        InventoryItem item = getInventoryOrThrow(request.productId());
+        if (item.getReservedQuantity() < request.quantity()) {
+            throw new IllegalArgumentException(String.format(
+                    "Нельзя снять резерв товара с productId = %d: зарезервировано %d, запрошено %d",
+                    request.productId(), item.getReservedQuantity(), request.quantity()));
+        }
+
+        item.setReservedQuantity(item.getReservedQuantity() - request.quantity());
+        inventoryRepository.save(item);
+
+        logAfterCommit("Резерв снят: productId={}, quantity={}, reservedQuantity={}, availableQuantity={}",
+                item.getProductId(), request.quantity(), item.getReservedQuantity(), item.getAvailableQuantity());
+
+        String message = String.format("Резерв товара с productId = %d успешно снят", request.productId());
+        return new ReserveResponse(true, item.getAvailableQuantity(), message);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public InventoryDto findByProductId(Long productId) {
         return mapper.toDto(getInventoryOrThrow(productId));

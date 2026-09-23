@@ -14,7 +14,9 @@ import ru.yandex.practicum.order.repository.OrderRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
                 .price(item.price())
                 .quantity(item.quantity())
                 .order(order)
-                .build()).toList());
+                .build()).collect(Collectors.toCollection(ArrayList::new)));
         order.setTotalPrice(order.getItems().stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
