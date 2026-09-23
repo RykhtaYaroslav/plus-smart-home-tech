@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.dto.OrderItemSnapshot;
 import ru.yandex.practicum.order.entity.Order;
+import ru.yandex.practicum.order.entity.OrderItem;
 import ru.yandex.practicum.order.exception.NotFoundException;
 import ru.yandex.practicum.order.mapper.OrderServiceMapper;
 import ru.yandex.practicum.order.repository.OrderRepository;
@@ -30,9 +32,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto create(CreateOrderRequest request) {
+    public OrderDto create(CreateOrderRequest request, List<OrderItemSnapshot> items) {
         Order order = mapper.toEntity(request);
-        order.getItems().forEach(item -> item.setOrder(order));
+        order.setItems(items.stream().map(item -> OrderItem.builder()
+                .productId(item.productId())
+                .productName(item.productName())
+                .price(item.price())
+                .quantity(item.quantity())
+                .order(order)
+                .build()).toList());
         order.setTotalPrice(order.getItems().stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
