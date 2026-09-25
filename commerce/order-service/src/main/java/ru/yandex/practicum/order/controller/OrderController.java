@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
+import ru.yandex.practicum.order.service.OrderOrchestrationService;
 import ru.yandex.practicum.order.service.OrderService;
 
 import java.util.List;
@@ -24,26 +25,27 @@ import java.util.List;
 @RequestMapping("/api/orders")
 @Validated
 public class OrderController {
-    private final OrderService service;
+    private final OrderOrchestrationService orchestrationService;
+    private final OrderService orderService;
 
     @GetMapping
     public List<OrderDto> getAll() {
-        return service.getAll();
+        return orderService.getAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto create(@Valid @RequestBody CreateOrderRequest request) {
-        return service.create(request);
+        return orchestrationService.processCreating(request);
     }
 
     @GetMapping("/{id}")
     public OrderDto findById(@PathVariable @Positive Long id) {
-        return service.findById(id);
+        return orderService.findById(id);
     }
 
     @GetMapping("/by-email")
     public List<OrderDto> findByEmail(@RequestParam String email) {
-        return service.findByEmail(email);
+        return orderService.findByEmail(email);
     }
 }

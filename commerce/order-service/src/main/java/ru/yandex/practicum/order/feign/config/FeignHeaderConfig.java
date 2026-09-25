@@ -1,0 +1,14 @@
+package ru.yandex.practicum.order.feign.config;
+
+import feign.RequestInterceptor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class FeignHeaderConfig {
+
+    @Bean
+    public RequestInterceptor sourceServiceHeaderInterceptor() {
+        return template -> template.header("X-Source-Service", "order-service");
+    }
+}

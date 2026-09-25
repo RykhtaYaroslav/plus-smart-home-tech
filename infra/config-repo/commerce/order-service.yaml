@@ -2,6 +2,15 @@ server:
   port: 0
 
 spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 3000
+          inventory-service:
+            loggerLevel: basic
   jpa:
     hibernate:
       ddl-auto: validate
@@ -12,3 +21,7 @@ spring:
   sql:
     init:
       mode: always
+
+logging:
+  level:
+    ru.yandex.practicum.order.feign.InventoryClient: DEBUG

@@ -49,6 +49,11 @@ public class InventoryController {
         return service.reserve(request);
     }
 
+    @PostMapping("/release")
+    public ReserveResponse release(@Valid @RequestBody ReserveRequest request) {
+        return service.release(request);
+    }
+
     @GetMapping("/{productId}")
     public InventoryDto findByProductId(@PathVariable @Positive Long productId) {
         return service.findByProductId(productId);
