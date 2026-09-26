@@ -1,28 +1,41 @@
 spring:
   main:
+    # Отключает вывод стартового баннера Spring Boot.
     banner-mode: off
+    # Отключает информационное сообщение о запуске приложения.
     log-startup-info: false
   cloud:
     config:
+      # Прерывает запуск приложения, если Config Server недоступен.
       fail-fast: true
       retry:
+        # Число попыток подключения к Config Server.
         max-attempts: 6
+        # Пауза перед первой повторной попыткой подключения, в миллисекундах.
         initial-interval: 1000
+        # Множитель увеличения паузы между повторными попытками.
         multiplier: 1.1
+        # Максимальная пауза между повторными попытками, в миллисекундах.
         max-interval: 2000
 
 logging:
   level:
+    # Показывает предупреждения и более серьёзные сообщения телеметрии.
     ru.yandex.practicum.telemetry: WARN
     org:
+      # Показывает только ошибки и более серьёзные сообщения Spring Framework.
       springframework: ERROR
+      # Показывает предупреждения и более серьёзные сообщения Kafka.
       apache.kafka: WARN
 
 kafka:
+  # Адреса брокеров Kafka для подключения.
   bootstrap-servers: "localhost:9092"
+  # При отсутствии сохранённой позиции начинает чтение с самого раннего сообщения.
   auto-offset-reset: earliest
 
 eureka:
   client:
     serviceUrl:
+      # Адрес сервера Eureka для регистрации и обнаружения сервисов.
       defaultZone: http://localhost:8761/eureka/

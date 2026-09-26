@@ -1,4 +1,5 @@
 server:
+  # Выбирает свободный порт при запуске сервиса.
   port: 0
 
 spring:
@@ -10,19 +11,27 @@ spring:
       client:
         config:
           default:
+            # Максимальное время установления соединения с удалённым сервисом, в миллисекундах.
             connectTimeout: 2000
+            # Максимальное время ожидания ответа удалённого сервиса, в миллисекундах.
             readTimeout: 3000
           inventory-service:
+            # Уровень логирования запросов и ответов клиента склада.
             loggerLevel: basic
   jpa:
     hibernate:
+      # Проверяет соответствие схемы БД сущностям, не изменяя схему.
       ddl-auto: validate
   datasource:
+    # JDBC-адрес базы данных сервиса заказов.
     url: jdbc:postgresql://localhost:5432/order_db
+    # Имя пользователя базы данных.
     username: dbuser
+    # Пароль пользователя базы данных.
     password: "12345"
   sql:
     init:
+      # Выполняет SQL-инициализацию при каждом запуске.
       mode: always
 
 resilience4j:
@@ -44,4 +53,5 @@ resilience4j:
         timeout-duration: 3s
 logging:
   level:
+    # Уровень DEBUG включает подробные сообщения клиента склада.
     ru.yandex.practicum.order.feign.InventoryClient: DEBUG
