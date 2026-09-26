@@ -1,5 +1,7 @@
 package ru.yandex.practicum.order.dto;
 
+import ru.yandex.practicum.order.OrderStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +14,7 @@ public record OrderDto(
 
         String customerEmail,
 
-        String status,
+        OrderStatus status,
 
         BigDecimal totalPrice,
 

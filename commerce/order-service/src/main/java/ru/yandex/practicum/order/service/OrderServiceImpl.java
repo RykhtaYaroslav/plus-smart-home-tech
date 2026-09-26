@@ -3,6 +3,7 @@ package ru.yandex.practicum.order.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.order.OrderStatus;
 import ru.yandex.practicum.order.dto.CreateOrderRequest;
 import ru.yandex.practicum.order.dto.OrderDto;
 import ru.yandex.practicum.order.dto.OrderItemSnapshot;
@@ -34,8 +35,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto create(CreateOrderRequest request, List<OrderItemSnapshot> items) {
+    public OrderDto create(
+            CreateOrderRequest request,
+            List<OrderItemSnapshot> items,
+            OrderStatus status,
+            String statusDetails
+    ) {
         Order order = mapper.toEntity(request);
+        order.setStatus(status);
+        order.setStatusDetails(statusDetails);
         order.setItems(items.stream().map(item -> OrderItem.builder()
                 .productId(item.productId())
                 .productName(item.productName())
