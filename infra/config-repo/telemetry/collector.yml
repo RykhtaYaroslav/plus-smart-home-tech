@@ -1,8 +1,11 @@
 grpc:
   server:
+    # Порт, на котором collector принимает gRPC-запросы.
     port: 59091
 
 collector:
   kafka:
+    # Топик Kafka для сообщений о показаниях датчиков.
     sensor-topic: telemetry.sensors.v1
+    # Топик Kafka для событий об устройствах и хабах.
     hub-topic: telemetry.hubs.v1

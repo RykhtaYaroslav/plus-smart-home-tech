@@ -1,39 +1,59 @@
 spring:
   datasource:
+    # Класс JDBC-драйвера PostgreSQL.
     driverClassName: org.postgresql.Driver
+    # JDBC-адрес базы данных анализатора телеметрии.
     url: jdbc:postgresql://localhost:5432/telemetry_analyzer
+    # Имя пользователя базы данных.
     username: dbuser
+    # Пароль пользователя базы данных.
     password: 12345
   sql:
     init:
+      # Выполняет SQL-инициализацию при каждом запуске.
       mode: always
+      # Путь к SQL-файлу создания схемы относительно classpath.
       schema-locations: classpath:schema.sql
   jpa:
     hibernate:
+      # Проверяет соответствие схемы БД сущностям, не изменяя схему.
       ddl-auto: validate
+    # Отключает открытый на время web-запроса EntityManager.
     open-in-view: false
 
 grpc:
   server:
+    # Отключает сервер на фиксированном порту; порт назначается автоматически.
     port: -1
   client:
     hub-router:
+      # Адрес hub-router, разрешаемый через сервис обнаружения.
       address: 'discovery:///hub-router'
+      # Включает gRPC keepalive-проверки соединения.
       enable-keep-alive: true
+      # Разрешает keepalive-проверки даже при отсутствии активных вызовов.
       keep-alive-without-calls: true
+      # Использует незашифрованное соединение gRPC.
       negotiation-type: plaintext
 
 analyzer:
   hub-router:
+    # Максимальное время ожидания ответа hub-router, в миллисекундах.
     request-timeout-ms: 5000
   kafka:
+    # Адреса брокеров Kafka для подключения.
     bootstrap-servers: localhost:9092
+    # При отсутствии сохранённой позиции начинает чтение с самого раннего сообщения.
     auto-offset-reset: earliest
 
     hub-event-consumer:
+      # Топик с событиями хабов.
       topic: telemetry.hubs.v1
+      # Идентификатор группы потребителей событий хабов.
       group-id: analyzer-hub-events
 
     snapshot-consumer:
+      # Топик со снимками состояния хабов.
       topic: telemetry.snapshots.v1
+      # Идентификатор группы потребителей снимков.
       group-id: analyzer-snapshots

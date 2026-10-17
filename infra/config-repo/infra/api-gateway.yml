@@ -1,0 +1,138 @@
+server:
+  # Порт, на котором Gateway принимает запросы клиентов.
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        # Применяет CORS-политику на уровне Spring Cloud Gateway.
+        add-to-simple-url-handler-mapping: true
+        # Настройки CORS для указанных путей; [/**] означает все пути.
+        cors-configurations:
+          '[/**]':
+            # Разрешает запросы с локальных адресов фронтенда.
+            allowed-origins:
+              - http://localhost:3000
+              - http://localhost:5173
+              - http://localhost:8443
+            # Разрешённые HTTP-методы для кросс-доменных запросов.
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            # Разрешает клиенту отправлять любые заголовки запроса.
+            allowed-headers:
+              - '*'
+            # Делает заголовок Location доступным для чтения в браузере.
+            exposed-headers:
+              - Location
+            # Разрешает передачу cookie и других учётных данных.
+            allow-credentials: true
+            # Кэширует результат preflight-проверки браузером на 3600 секунд.
+            max-age: 3600
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        # GET-запросы к товарам и категориям обрабатываются этим маршрутом
+        # раньше общих маршрутов ниже, чтобы к ним применялся Retry.
+        - id: product-service-read
+          # Пересылает запрос в один из экземпляров product-service через discovery.
+          uri: lb://product-service
+          predicates:
+            # Совпадает с запросами к API товаров и категорий.
+            - Path=/api/products/**,/api/categories/**
+            # Ограничивает маршрут только HTTP-методом GET.
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                # Повторяет неудачный запрос не более двух раз.
+                retries: 2
+                # Повтор выполняется только при указанных ответах шлюза/сервиса.
+                statuses:
+                  - BAD_GATEWAY
+                  - SERVICE_UNAVAILABLE
+                  - GATEWAY_TIMEOUT
+                # Повтор разрешён только для GET-запросов.
+                methods:
+                  - GET
+                # Включает экспоненциальную задержку между повторами.
+                backoff:
+                  # Минимальная задержка перед первым повтором.
+                  firstBackoff: 100ms
+                  # Верхний предел задержки перед последующими повторами.
+                  maxBackoff: 500ms
+        # Общий маршрут для остальных запросов к товарам и категориям.
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/products/**,/api/categories/**
+        # GET-запросы к остаткам проходят через Retry перед общим маршрутом inventory-service.
+        - id: inventory-service-read
+          # Пересылает запрос в один из экземпляров inventory-service через discovery.
+          uri: lb://inventory-service
+          predicates:
+            # Совпадает с запросами к API остатков.
+            - Path=/api/inventory/**
+            # Ограничивает маршрут только HTTP-методом GET.
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                # Повторяет неудачный запрос не более двух раз.
+                retries: 2
+                # Повтор выполняется только при указанных ответах шлюза/сервиса.
+                statuses:
+                  - BAD_GATEWAY
+                  - SERVICE_UNAVAILABLE
+                  - GATEWAY_TIMEOUT
+                # Повтор разрешён только для GET-запросов.
+                methods:
+                  - GET
+                # Включает экспоненциальную задержку между повторами.
+                backoff:
+                  # Минимальная задержка перед первым повтором.
+                  firstBackoff: 100ms
+                  # Верхний предел задержки перед последующими повторами.
+                  maxBackoff: 500ms
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/inventory/**
+        # GET-запросы к заказам проходят через Retry перед общим маршрутом order-service.
+        - id: order-service-read
+          # Пересылает запрос в один из экземпляров order-service через discovery.
+          uri: lb://order-service
+          predicates:
+            # Совпадает с запросами к API заказов.
+            - Path=/api/orders/**
+            # Ограничивает маршрут только HTTP-методом GET.
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                # Повторяет неудачный запрос не более двух раз.
+                retries: 2
+                # Повтор выполняется только при указанных ответах шлюза/сервиса.
+                statuses:
+                  - BAD_GATEWAY
+                  - SERVICE_UNAVAILABLE
+                  - GATEWAY_TIMEOUT
+                # Повтор разрешён только для GET-запросов.
+                methods:
+                  - GET
+                # Включает экспоненциальную задержку между повторами.
+                backoff:
+                  # Минимальная задержка перед первым повтором.
+                  firstBackoff: 100ms
+                  # Верхний предел задержки перед последующими повторами.
+                  maxBackoff: 500ms
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**

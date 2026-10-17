@@ -13,4 +13,10 @@ public class BaseCustomException extends RuntimeException {
         this.status = status;
         this.description = description;
     }
+
+    public BaseCustomException(String message, String description, HttpStatus status, Throwable cause) {
+        super(message, cause);
+        this.status = status;
+        this.description = description;
+    }
 }

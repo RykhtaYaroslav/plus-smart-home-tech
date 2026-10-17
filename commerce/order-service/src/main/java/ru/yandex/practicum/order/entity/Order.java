@@ -3,6 +3,8 @@ package ru.yandex.practicum.order.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
+import ru.yandex.practicum.order.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,7 +45,8 @@ public class Order {
     private String customerEmail;
 
     @Column(name = "status", nullable = false, length = 255)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @Column(name = "total_price", nullable = false, columnDefinition = "NUMERIC")
     private BigDecimal totalPrice;

@@ -1,0 +1,57 @@
+server:
+  # Выбирает свободный порт при запуске сервиса.
+  port: 0
+
+spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        # Создаёт Circuit Breaker для удалённых вызовов через Feign.
+        enabled: true
+      client:
+        config:
+          default:
+            # Максимальное время установления соединения с удалённым сервисом, в миллисекундах.
+            connectTimeout: 2000
+            # Максимальное время ожидания ответа удалённого сервиса, в миллисекундах.
+            readTimeout: 3000
+          inventory-service:
+            # Уровень логирования запросов и ответов клиента склада.
+            loggerLevel: basic
+  jpa:
+    hibernate:
+      # Проверяет соответствие схемы БД сущностям, не изменяя схему.
+      ddl-auto: validate
+  datasource:
+    # JDBC-адрес базы данных сервиса заказов.
+    url: jdbc:postgresql://localhost:5432/order_db
+    # Имя пользователя базы данных.
+    username: dbuser
+    # Пароль пользователя базы данных.
+    password: "12345"
+  sql:
+    init:
+      # Выполняет SQL-инициализацию при каждом запуске.
+      mode: always
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        # Количество последних вызовов, учитываемых при оценке сбоев.
+        sliding-window-size: 5
+        # Доля ошибок в процентах, после которой Circuit Breaker размыкается.
+        failure-rate-threshold: 50
+        # Сколько Circuit Breaker остаётся разомкнутым перед проверкой восстановления.
+        wait-duration-in-open-state: 10s
+        # Число пробных вызовов в полуоткрытом состоянии для проверки сервиса.
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    configs:
+      default:
+        # Максимальное время ожидания удалённого вызова до тайм-аута.
+        timeout-duration: 3s
+logging:
+  level:
+    # Уровень DEBUG включает подробные сообщения клиента склада.
+    ru.yandex.practicum.order.feign.InventoryClient: DEBUG

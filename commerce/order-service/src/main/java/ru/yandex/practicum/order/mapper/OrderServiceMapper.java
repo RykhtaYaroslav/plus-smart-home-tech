@@ -17,7 +17,7 @@ public interface OrderServiceMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "items", ignore = true)
-    @Mapping(target = "status", constant = "CONFIRMED")
+    @Mapping(target = "status", ignore = true)
     @Mapping(target = "totalPrice", ignore = true)
     @Mapping(target = "statusDetails", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
