@@ -19,9 +19,7 @@
         <module>telemetry</module>
         <module>infra</module>
         <module>commerce</module>
-        <module>infra/config-server</module>
         <module>infra/config-repo</module>
-        <module>infra/discovery-server</module>
     </modules>
 
     <properties>

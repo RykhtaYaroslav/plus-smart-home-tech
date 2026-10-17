@@ -17,6 +17,10 @@ spring:
         multiplier: 1.1
         # Максимальная пауза между повторными попытками, в миллисекундах.
         max-interval: 2000
+    loadbalancer:
+      # Быстрее удаляет из кэша экземпляры, помеченные DOWN в Eureka.
+      cache:
+        ttl: 5s
 
 logging:
   level:
@@ -36,6 +40,8 @@ kafka:
 
 eureka:
   client:
+    # Быстрее обновляет список экземпляров для внутренних вызовов между сервисами.
+    registry-fetch-interval-seconds: 5
     serviceUrl:
       # Адрес сервера Eureka для регистрации и обнаружения сервисов.
       defaultZone: http://localhost:8761/eureka/
