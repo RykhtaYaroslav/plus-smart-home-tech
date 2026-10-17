@@ -1,0 +1,33 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - http://localhost:8443
+            allowed-methods:
+              - GET
+              - POST
+              - OPTIONS
+            allowed-headers:
+              - '*'
+app:
+  security:
+    users:
+      ivan:
+        password: ivan-password
+        roles:
+          - USER
+      anna:
+        password: anna-password
+        roles:
+          - USER
+          - ADMIN
+
+# Не запускаем регистрацию в Eureka во время тестирования правил Gateway.
+eureka:
+  client:
+    enabled: false
